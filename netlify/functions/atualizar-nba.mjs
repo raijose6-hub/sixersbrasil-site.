@@ -1,13 +1,13 @@
-export default async () => {
-  return new Response(
-    JSON.stringify({
-      mensagem: "Automação NBA preparada",
-      atualizadoEm: new Date().toISOString()
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }
+
+export default async (req) => {
+  const { next_run } = await req.json();
+
+  console.log(
+    "Sixers Brasil: execução diária iniciada.",
+    next_run
   );
+};
+
+export const config = {
+  schedule: "0 12 * * *"
 };
