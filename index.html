@@ -1,217 +1,146 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#006bb6">
-<meta name="description" content="Sixers Brasil: notícias, resultados, classificação e estatísticas do Philadelphia 76ers em português.">
-<title>Sixers Brasil | Notícias, jogos e estatísticas</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Philadelphia 76ers Brasil</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&family=Barlow:wght@400;500;600&display=swap">
 <style>
-:root{--blue:#006bb6;--red:#ed174c;--navy:#061a2f;--ink:#17212b;--muted:#667587;--line:#e4e9ef;--bg:#f4f7fa;--white:#fff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Arial,Helvetica,sans-serif}
-a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
-header{background:linear-gradient(120deg,#061a2f,#006bb6);color:white;padding:26px 16px 20px;border-bottom:5px solid var(--red)}
-.wrap{max-width:1080px;margin:auto;padding:0 16px}
-.brand{display:flex;align-items:center;gap:13px}.logo{width:54px;height:54px;border:2px solid #fff;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:14px;letter-spacing:-1px}
-h1{font-size:clamp(25px,5vw,38px);line-height:1.1;margin:0}.tagline{color:#dceeff;margin:7px 0 0}
-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}nav a{color:white;border:1px solid #ffffff55;border-radius:999px;padding:7px 12px;font-size:14px}
-main{padding:22px 0 42px}.intro{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-h2{font-size:23px;margin:0 0 12px;color:var(--navy)}h3{font-size:17px;line-height:1.35;margin:6px 0 8px}
-.section{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #0b29410a}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
-.tile{border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
-.meta{font-size:12px;color:var(--muted);margin-bottom:7px}.muted{color:var(--muted);font-size:14px}
-button{background:var(--blue);color:white;border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}button:focus,a:focus{outline:3px solid #ed174c88;outline-offset:2px}
-.status{color:var(--muted);padding:12px 0}.scoreline{display:flex;justify-content:space-between;gap:12px;align-items:center;font-weight:700}.score{font-size:22px;white-space:nowrap}.badge{display:inline-block;background:#eaf4ff;color:#00559a;border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted);text-transform:uppercase}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-.table-wrap{overflow-x:auto}.source-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.source-links a{font-size:13px;font-weight:700;border:1px solid var(--line);padding:7px 10px;border-radius:8px}
-footer{padding:24px 16px;background:#061a2f;color:#dce6ef;font-size:13px}footer a{color:#9bd1ff}
-.small{font-size:12px;color:var(--muted)}.news-title{color:var(--navy)}.refresh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-@media(max-width:520px){.section{padding:14px}.scoreline{align-items:flex-start}.score{font-size:19px}th,td{padding:8px 5px}}
-</style>
-</head>
-<body>
-<header>
-  <div class="wrap">
-    <div class="brand"><div class="logo" aria-label="Sixers Brasil">76<br>BR</div><div><h1>Sixers Brasil</h1><p class="tagline">Tudo sobre o Philadelphia 76ers, em português.</p></div></div>
-    <nav aria-label="Navegação principal">
-      <a href="#resultados">Resultados</a><a href="#agenda">Próximos jogos</a><a href="#classificacao">Classificação</a><a href="#estatisticas">Estatísticas</a><a href="#noticias">Notícias</a>
-    </nav>
-  </div>
-</header>
-<main class="wrap">
-  <div class="intro">
-    <div><h2>Central dos Sixers</h2><div class="muted">Pontuação e informações atualizadas quando você abre ou atualiza esta página.</div></div>
-    <div class="refresh"><span id="atualizado" class="small">Carregando dados…</span><button id="btn-atualizar" type="button">Atualizar agora</button></div>
-  </div>
+  [hidden]:not([hidden=until-found i]){display:none!important}
+  img{max-width:100%}
 
-  <section class="section" id="resultados">
-    <h2>Último resultado</h2>
-    <div id="ultimos-jogos" class="grid"><p class="status">Carregando pontuação…</p></div>
-    <div class="source-links"><a href="https://www.cbssports.com/nba/teams/PHI/philadelphia-76ers/" target="_blank" rel="noopener noreferrer">Ver resultados na CBS Sports ↗</a><a href="https://www.nba.com/sixers/schedule" target="_blank" rel="noopener noreferrer">Calendário oficial NBA.com ↗</a></div>
-  </section>
-
-  <section class="section" id="agenda">
-    <h2>Próximos jogos</h2>
-    <div id="proximos-jogos" class="grid"><p class="status">Carregando calendário…</p></div>
-    <div class="source-links"><a href="https://www.cbssports.com/nba/teams/PHI/philadelphia-76ers/schedule/" target="_blank" rel="noopener noreferrer">Calendário na CBS Sports ↗</a></div>
-  </section>
-
-  <section class="section" id="classificacao">
-    <h2>Divisão do Atlântico</h2>
-    <div id="tabela-classificacao"><p class="status">Carregando classificação…</p></div>
-    <div class="source-links"><a href="https://www.nba.com/standings" target="_blank" rel="noopener noreferrer">Classificação oficial NBA.com ↗</a><a href="https://www.cbssports.com/nba/standings/" target="_blank" rel="noopener noreferrer">Classificação CBS Sports ↗</a></div>
-  </section>
-
-  <section class="section" id="estatisticas">
-    <h2>Estatísticas dos jogadores</h2>
-    <p class="muted">A tabela abaixo mostra os líderes disponíveis na fonte de dados. Consulte NBA.com para as estatísticas oficiais completas.</p>
-    <div id="tabela-estatisticas"><p class="status">Carregando estatísticas…</p></div>
-    <div class="source-links"><a href="https://www.nba.com/stats/teams/traditional?TeamID=1610612755" target="_blank" rel="noopener noreferrer">Estatísticas oficiais NBA.com ↗</a><a href="https://www.cbssports.com/nba/teams/PHI/philadelphia-76ers/stats/" target="_blank" rel="noopener noreferrer">Estatísticas CBS Sports ↗</a></div>
-  </section>
-
-  <section class="section" id="noticias">
-    <h2>Notícias dos Sixers</h2>
-    <p class="muted">As manchetes são buscadas em fontes jornalísticas. A tradução automática pode conter erros; abra a notícia original para confirmar detalhes.</p>
-    <div id="lista-noticias" class="grid"><p class="status">Carregando notícias…</p></div>
-    <div class="source-links"><a href="https://www.inquirer.com/sixers/" target="_blank" rel="noopener noreferrer">The Philadelphia Inquirer — Sixers ↗</a><a href="https://www.inquirer.com/arc/outboundfeeds/rss/" target="_blank" rel="noopener noreferrer">Feed RSS do Inquirer ↗</a></div>
-  </section>
-  <p class="small">Transparência: os links acima levam às fontes solicitadas. Para os cartões automáticos de placar e classificação, esta versão usa o feed público da ESPN como alternativa técnica, pois NBA.com e CBS Sports não oferecem uma API pública gratuita garantida para integração direta no navegador. Os dados podem atrasar ou ficar indisponíveis.</p>
-</main>
-<footer><div class="wrap">Sixers Brasil — projeto independente de fãs, sem afiliação oficial com Philadelphia 76ers, NBA, CBS Sports ou The Philadelphia Inquirer.<br>Conteúdo jornalístico pertence às fontes originais. As notícias são resumidas/traduzidas automaticamente e linkadas à publicação original.</div></footer>
-
-<script>
-const ESPN = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
-const $ = id => document.getElementById(id);
-const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-const fmtDate = date => {
-  if (!date) return "Data a confirmar";
-  return new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date(date));
-};
-async function getJSON(url){
-  const res = await fetch(url,{cache:"no-store"});
-  if(!res.ok) throw new Error("Não foi possível carregar os dados.");
-  return res.json();
-}
-function teamsFromEvent(event){
-  const comps = event.competitions?.[0]?.competitors || [];
-  const home = comps.find(c=>c.homeAway==="home") || comps[0] || {};
-  const away = comps.find(c=>c.homeAway==="away") || comps[1] || {};
-  return {home,away,status:event.status?.type?.shortDetail || event.status?.type?.description || "Agendado",completed:!!event.status?.type?.completed,date:event.date};
-}
-function eventCard(event){
-  const {home,away,status,date} = teamsFromEvent(event);
-  const finished = event.status?.type?.completed;
-  const scores = finished || event.status?.type?.state==="in" ?
-    `<span class="score">${escapeHTML(away.score ?? "—")} – ${escapeHTML(home.score ?? "—")}</span>` :
-    `<span class="score">${escapeHTML(fmtDate(date))}</span>`;
-  return `<article class="tile"><div class="meta">${escapeHTML(status)} · ${escapeHTML(fmtDate(date))}</div><div class="scoreline"><span>${escapeHTML(away.team?.displayName || away.team?.name || "Visitante")}</span>${scores}</div><div class="scoreline"><span>${escapeHTML(home.team?.displayName || home.team?.name || "Mandante")}</span><span class="badge">${finished?"FINAL":(event.status?.type?.state==="in"?"AO VIVO":"JOGO")}</span></div></article>`;
-}
-async function loadGames(){
-  const dates = [];
-  const now = new Date();
-  for(let i=-7;i<=14;i++){const d=new Date(now);d.setDate(d.getDate()+i);dates.push(d.toISOString().slice(0,10).replaceAll("-",""));}
-  const data = await Promise.allSettled(dates.map(date=>getJSON(`${ESPN}/scoreboard?dates=${date}&limit=100`)));
-  const events = data.filter(x=>x.status==="fulfilled").flatMap(x=>x.value.events||[]);
-  const unique = [...new Map(events.map(e=>[e.id,e])).values()];
-  const phi = unique.filter(e=>(e.competitions?.[0]?.competitors||[]).some(c=>c.team?.abbreviation==="PHI" || c.team?.id==="20" || /Philadelphia 76ers/i.test(c.team?.displayName||"")));
-  const past = phi.filter(e=>e.status?.type?.completed).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3);
-  const future = phi.filter(e=>!e.status?.type?.completed).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,5);
-  $("ultimos-jogos").innerHTML = past.length?past.map(eventCard).join(""):'<p class="status">Não foi possível encontrar resultados recentes.</p>';
-  $("proximos-jogos").innerHTML = future.length?future.map(eventCard).join(""):'<p class="status">Não foi possível carregar os próximos jogos.</p>';
-  return {past,future};
-}
-async function loadStandings(){
-  const data = await getJSON(`${ESPN}/standings`);
-  let entries=[];
-  const walk = node=>{
-    if(!node || typeof node!=="object")return;
-    if(Array.isArray(node)){node.forEach(walk);return;}
-    if(node.team && (node.stats || node.records)){entries.push(node);return;}
-    Object.values(node).forEach(walk);
-  };
-  walk(data);
-  const east = entries.filter(e=>/PHI|BOS|NYK|BKN|TOR/i.test(e.team?.abbreviation||""));
-  const chosen = east.length?east:entries;
-  const rows = chosen.map(e=>{
-    const stats=e.stats||[];
-    const stat=(...names)=>{const x=stats.find(s=>names.includes(s.name)||names.includes(s.abbreviation));return x?.displayValue ?? x?.value ?? "—";};
-    const wins=stat("wins","W"),losses=stat("losses","L"),pct=stat("winPercent","PCT");
-    return {name:e.team?.displayName||e.team?.name||"Equipe",abbr:e.team?.abbreviation||"",wins,losses,pct,rank:stat("playoffSeed","rank","seed")};
-  }).filter(r=>r.abbr);
-  if(!rows.length)throw new Error("Tabela indisponível");
-  rows.sort((a,b)=>Number(a.rank||99)-Number(b.rank||99));
-  $("tabela-classificacao").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Equipe</th><th class="num">V</th><th class="num">D</th><th class="num">%</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td class="num">${escapeHTML(r.wins)}</td><td class="num">${escapeHTML(r.losses)}</td><td class="num">${escapeHTML(r.pct)}</td></tr>`).join("")}</tbody></table></div>`;
-}
-async function loadStats(){
-  // ESPN roster/overview is used as a technical fallback; NBA.com and CBS links below are the source-of-record pages.
-  const roster = await getJSON(`${ESPN}/teams/phi/roster`);
-  const athletes = (roster.athletes||[]).flatMap(g=>g.items||[]);
-  const selected = athletes.filter(p=>p.id).slice(0,12);
-  const rows = await Promise.allSettled(selected.map(async p=>{
-    const d=await getJSON(`${ESPN}/athletes/${p.id}/overview`);
-    const stats=d.statistics || d.athlete?.statistics || {};
-    const labels=stats.names||stats.labels||[];
-    const vals=stats.displayValues||stats.values||[];
-    const get=(patterns)=>{
-      const i=labels.findIndex(n=>patterns.includes(String(n).toLowerCase()));
-      return i>=0?(vals[i]??"—"):"—";
-    };
-    return {name:p.fullName||p.displayName||"Jogador",pts:get(["points per game","pts","ppg"]),reb:get(["rebounds per game","reb","rpg"]),ast:get(["assists per game","ast","apg"])};
-  }));
-  const valid=rows.filter(r=>r.status==="fulfilled").map(r=>r.value);
-  if(!valid.length)throw new Error("Estatísticas indisponíveis");
-  $("tabela-estatisticas").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Jogador</th><th class="num">PTS</th><th class="num">REB</th><th class="num">AST</th></tr></thead><tbody>${valid.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td class="num">${escapeHTML(r.pts)}</td><td class="num">${escapeHTML(r.reb)}</td><td class="num">${escapeHTML(r.ast)}</td></tr>`).join("")}</tbody></table></div>`;
-}
-async function translateText(text){
-  if(!text)return "";
-  try{
-    const url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair=en|pt-br";
-    const r=await fetch(url);if(!r.ok)return text;
-    const j=await r.json();const out=j.responseData?.translatedText;
-    return (j.responseStatus===200&&out)?out:text;
-  }catch{return text;}
-}
-async function loadNews(){
-  const area=$("lista-noticias");
-  // RSS do Inquirer pode não permitir CORS em todos os navegadores; Google News RSS é uma alternativa de leitura pública.
-  const rss="https://news.google.com/rss/search?q=Philadelphia+76ers+site%3Ainquirer.com&hl=en-US&gl=US&ceid=US%3Aen";
-  try{
-    const proxy="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(rss);
-    const data=await getJSON(proxy);
-    const items=(data.items||[]).slice(0,6);
-    if(!items.length)throw new Error("Sem notícias");
-    const cards=await Promise.all(items.map(async item=>{
-      const title=await translateText(item.title||"Notícia dos Sixers");
-      const desc=await translateText((item.description||"").replace(/<[^>]*>/g," ").slice(0,280));
-      const link=/^https?:\/\//i.test(item.link||"")?item.link:"#";
-      return `<article class="tile"><div class="meta">The Philadelphia Inquirer · via Google News</div><h3 class="news-title">${escapeHTML(title)}</h3>${desc?`<p>${escapeHTML(desc)}</p>`:""}<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Ler notícia original ↗</a></article>`;
-    }));
-    area.innerHTML=cards.join("");
-  }catch(e){
-    area.innerHTML=`<article class="tile"><h3>Notícias dos Sixers</h3><p class="muted">Não foi possível carregar e traduzir o feed automaticamente agora. Abra a fonte original para ver as notícias mais recentes.</p><a href="https://www.inquirer.com/sixers/" target="_blank" rel="noopener noreferrer">Acessar The Philadelphia Inquirer ↗</a></article>`;
+  :root {
+    --bg: #F4F8FC;
+    --surface: #FFFFFF;
+    --fg: #0A1F3C;
+    --muted: #4C6280;
+    --line: #D3E0EE;
+    --accent: #006BB6;
+    --accent-ink: #FFFFFF;
+    --hero-bg: #00468A;
+    --hero-fg: #FFFFFF;
+    --hero-soft: #B9D6F2;
+    --loss: #B5233A;
+    --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+    --font-body: "Barlow", "Segoe UI", Arial, sans-serif;
   }
-}
-async function refreshAll(){
-  $("atualizado").textContent="Atualizando…";
-  const tasks=[
-    ["jogos",loadGames],
-    ["classificação",loadStandings],
-    ["estatísticas",loadStats],
-    ["notícias",loadNews]
-  ];
-  await Promise.all(tasks.map(async ([name,fn])=>{
-    try{await fn();}
-    catch(err){
-      console.warn("Falha em "+name,err);
-      const targets={jogos:["ultimos-jogos","proximos-jogos"],classificação:["tabela-classificacao"],estatísticas:["tabela-estatisticas"],notícias:["lista-noticias"]};
-      (targets[name]||[]).forEach(id=>{if($(id))$(id).innerHTML='<p class="status">Dados indisponíveis neste momento. Use os links das fontes oficiais abaixo.</p>';});
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #061426; --surface: #0C2140; --fg: #EAF2FB; --muted: #9DB5D1; --line: #1B3A63;
+      --accent: #4DA3E8; --accent-ink: #04162B; --hero-bg: #0A3466; --hero-fg: #FFFFFF; --hero-soft: #A9CCEE;
+      --loss: #FF7D8F; color-scheme: dark;
     }
-  }));
-  $("atualizado").textContent="Última tentativa: "+new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(new Date());
-}
-$("btn-atualizar").addEventListener("click",refreshAll);
-refreshAll();
-</script>
-</body>
-</html>
+  }
+  :root[data-theme="dark"] {
+    --bg: #061426; --surface: #0C2140; --fg: #EAF2FB; --muted: #9DB5D1; --line: #1B3A63;
+    --accent: #4DA3E8; --accent-ink: #04162B; --hero-bg: #0A3466; --hero-fg: #FFFFFF; --hero-soft: #A9CCEE;
+    --loss: #FF7D8F; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+    padding-inline: 0; margin: 0;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .wrap {
+    max-width: 980px; margin-inline: auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.05; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Topo */
+  .top { background: var(--hero-bg); color: var(--hero-fg); }
+  .bar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; padding-block: 16px 10px; }
+  .brand { font-family: var(--font-display); font-weight: 800; font-style: italic; font-size: 1.7rem; letter-spacing: .02em; text-transform: uppercase; line-height: 1; }
+  .brand span { color: var(--hero-soft); }
+  .stamp { font-size: .8rem; color: var(--hero-soft); }
+  .stamp .ig, footer .ig { color: var(--hero-fg); font-weight: 600; }
+  nav { display: flex; gap: 4px 18px; flex-wrap: wrap; padding-bottom: 14px; }
+  nav a { color: var(--hero-fg); text-decoration: none; font-weight: 600; font-size: .9rem; padding: 4px 0; border-bottom: 2px solid transparent; }
+  nav a:hover { border-bottom-color: var(--hero-soft); }
+
+  .next { padding-block: 10px 28px; display: grid; gap: 14px; }
+  .eyebrow { font-size: .78rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--hero-soft); }
+  .matchup { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .matchup h1 { font-weight: 800; font-style: italic; font-size: clamp(2.4rem, 11vw, 4.6rem); text-transform: uppercase; }
+  .matchup .x { font-family: var(--font-display); font-size: 1.6rem; color: var(--hero-soft); }
+  .when { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 1.05rem; }
+  .when b { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+  .record { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .pill { border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 4px 12px; font-size: .88rem; }
+  .pill b { font-weight: 600; }
+
+  /* Seções */
+  main { padding-block: 28px 40px; display: grid; gap: 40px; }
+  section { min-width: 0; }
+  .sec-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; border-bottom: 3px solid var(--accent); padding-bottom: 6px; }
+  .sec-title h2 { font-size: 1.9rem; font-weight: 800; text-transform: uppercase; font-style: italic; }
+  .sec-title small { color: var(--muted); font-size: .85rem; }
+
+  /* Resultados */
+  .results { display: grid; gap: 10px; }
+  .game { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 4px 14px; align-items: center; }
+  .tag { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 4px; }
+  .tag.w { background: var(--accent); color: var(--accent-ink); }
+  .tag.l { border: 2px solid var(--loss); color: var(--loss); }
+  .game .vs { font-weight: 600; }
+  .game .day { color: var(--muted); font-size: .82rem; display: block; font-weight: 400; }
+  .game .score { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; white-space: nowrap; }
+  .game .best { grid-column: 1 / -1; font-size: .88rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 4px; }
+  .game .best b { color: var(--fg); }
+
+  /* Destaques */
+  .stars { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .star { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 6px; padding: 14px; min-width: 0; }
+  .star h3 { font-size: 1.5rem; font-weight: 700; text-transform: uppercase; }
+  .star .role { color: var(--muted); font-size: .82rem; margin-bottom: 10px; }
+  .stat-row { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat b { display: block; font-family: var(--font-display); font-size: 2rem; font-weight: 800; line-height: 1; }
+  .stat span { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .star p { font-size: .88rem; margin: 10px 0 0; color: var(--muted); }
+  .note { font-size: .82rem; color: var(--muted); margin: 10px 0 0; }
+
+  /* Notícias */
+  .posts { display: grid; gap: 14px; }
+  article { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0; }
+  article .meta { font-size: .78rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  article h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+  article p { margin: 0 0 10px; max-width: 65ch; }
+  article p:last-child { margin-bottom: 0; }
+  article.lead { border-left: 6px solid var(--accent); }
+  .scroll-x { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  tr.me td { font-weight: 600; color: var(--accent); }
+  .out { display: inline-block; border: 1.5px solid var(--loss); color: var(--loss); border-radius: 4px; padding: 0 8px; font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  #lesoes td:not(:first-child), #lesoes th:not(:first-child) { text-align: left; }
+  .src { font-size: .8rem; color: var(--muted); }
+
+  /* Calendário */
+  .sched { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+  .sched li { display: grid; grid-template-columns: 5.2rem 1fr auto; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); align-items: center; }
+  .sched li:last-child { border-bottom: 0; }
+  .sched .d { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; line-height: 1.1; }
+  .sched .d small { display: block; font-family: var(--font-body); font-weight: 400; font-size: .75rem; color: var(--muted); text-transform: uppercase; }
+  .sched .ha { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .sched .hr { font-weight: 600; white-space: nowrap; }
+  details summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; margin-top: 10px; }
+  details[open] summary { margin-bottom: 10px; }
+
+  footer { background: var(--hero-bg); color: var(--hero-soft); font-size: .82rem; padding-block: 22px; }
+  footer p { margin: 0 0 6px; max-width: 70ch; }
+
+  @media (min-width: 760px) {
+    main { grid-template-columns: 1fr 1fr; gap: 40px 32px; }
+    #noticias, #destaques { grid-column: 1 / -1; }
+    .posts { grid-template-columns: 1fr 1fr; }
+    article.lead { grid-column: 1 / -1; }
+  }
+  @media (prefe
