@@ -298,6 +298,9 @@
         </div>
         <p>Chegou a 10 assistências na vitória sobre os Pacers.</p>
       </div>
+      <div id="estatisticas-automaticas">
+  <p>Carregando estatísticas dos jogadores...</p>
+      </div>
       <div class="star">
         <h3>VJ Edgecombe</h3>
         <div class="role">Armador · 4 jogos</div>
@@ -459,6 +462,122 @@ async function atualizarJogosSixers() {
 
 atualizarJogosSixers();
 </script>
+  
+<script>
+async function carregarEstatisticasSixers() {
+  const area = document.getElementById("estatisticas-automaticas");
+  if (!area) return;
+
+  try {
+    const resposta = await fetch(
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/phi/roster"
+    );
+
+    if (!resposta.ok) throw new Error("Falha ao carregar elenco");
+
+    const elenco = await resposta.json();
+    const jogadores = (elenco.athletes || [])
+      .map(item => item.athlete || item)
+      .filter(j => j.id && j.displayName);
+
+    const resultados = await Promise.all(
+      jogadores.map(async jogador => {
+        try {
+          const url =
+            "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/" +
+            jogador.id + "/overview";
+
+          const r = await fetch(url);
+          if (!r.ok) return null;
+
+          const dados = await r.json();
+          const stats = dados.statistics;
+          if (!stats) return null;
+
+          const nomes = stats.names || [];
+          const valores = stats.displayValues || stats.values || [];
+
+          const pegar = nome => {
+            const i = nomes.indexOf(nome);
+            return i >= 0 ? valores[i] : "-";
+          };
+
+          const pontos = Number(pegar("avgPoints"));
+          if (!Number.isFinite(pontos)) return null;
+
+          return {
+            nome: jogador.displayName,
+            posicao: jogador.position?.abbreviation || "NBA",
+            jogos: pegar("gamesPlayed"),
+            pontos,
+            rebotes: pegar("avgRebounds"),
+            assistencias: pegar("avgAssists")
+          };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const destaques = resultados
+      .filter(j => j !== null)
+      .sort((a, b) => b.pontos - a.pontos)
+      .slice(0, 4);
+
+    if (!destaques.length) {
+      throw new Error("Estatísticas indisponíveis");
+    }
+
+    area.className = "stars";
+    area.replaceChildren();
+
+    destaques.forEach(j => {
+      const cartao = document.createElement("div");
+      cartao.className = "star";
+
+      const titulo = document.createElement("h3");
+      titulo.textContent = j.nome;
+
+      const funcao = document.createElement("div");
+      funcao.className = "role";
+      funcao.textContent = `${j.posicao} · ${j.jogos} jogos`;
+
+      const linha = document.createElement("div");
+      linha.className = "stat-row";
+
+      [
+        ["Pontos", j.pontos.toFixed(1).replace(".", ",")],
+        ["Rebotes", j.rebotes],
+        ["Assistências", j.assistencias]
+      ].forEach(([nome, valor]) => {
+        const stat = document.createElement("div");
+        stat.className = "stat";
+
+        const numero = document.createElement("b");
+        numero.className = "num";
+        numero.textContent = valor;
+
+        const rotulo = document.createElement("span");
+        rotulo.textContent = nome;
+
+        stat.append(numero, rotulo);
+        linha.appendChild(stat);
+      });
+
+      cartao.append(titulo, funcao, linha);
+      area.appendChild(cartao);
+    });
+
+  } catch (erro) {
+    console.error("Estatísticas dos Sixers:", erro);
+    area.textContent =
+      "Estatísticas temporariamente indisponíveis. Consulte novamente mais tarde.";
+  }
+}
+
+carregarEstatisticasSixers();
+</script>
+
 </body>
 </html>
 
@@ -560,3 +679,6 @@ async function atualizarClassificacaoNBA() {
 }
 
 atualizarClassificacaoNBA();
+</script>
+</body>
+</html>
