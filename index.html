@@ -463,12 +463,11 @@ atualizarJogosSixers();
 </html>
 
 <script>
+
 async function atualizarClassificacaoNBA() {
   const tabela = document.querySelector("#tabela tbody");
   if (!tabela) return;
-async function atualizarClassificacaoNBA() {
-  const tabela = document.querySelector("#tabela tbody");
-  if (!tabela) return;
+
   try {
     const resposta = await fetch(
       "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
@@ -477,28 +476,87 @@ async function atualizarClassificacaoNBA() {
     if (!resposta.ok) throw new Error("Falha ao carregar classificação");
 
     const dados = await resposta.json();
-    const conferencias = dados.children || [];
 
-    const leste = conferencias.find(c =>
-      /eastern|east|leste/i.test(c.name || "")
-    );
+    function procurarConferencia(obj) {
+      if (!obj || typeof obj !== "object") return null;
 
+      if (
+        obj.name &&
+        /eastern|east|leste/i.test(obj.name) &&
+        obj.standings?.entries
+      ) {
+        return obj;
+      }
+
+      for (const filho of obj.children || []) {
+        const encontrada = procurarConferencia(filho);
+        if (encontrada) return encontrada;
+      }
+
+      return null;
+    }
+
+    const leste = procurarConferencia(dados);
     if (!leste) throw new Error("Conferência Leste não encontrada");
 
-    const entradas = leste.standings?.entries || [];
-    const linhas = entradas
-      .map(e => {
-        const nome = e.team?.displayName || "";
-        const stats = e.stats || [];
+    const entradas = leste.standings.entries;
 
-        const valor = ...;
-      });
+    const obterStat = (stats, nomes) => {
+      const item = stats.find(s => nomes.includes(s.name));
+      return item?.value ?? item?.displayValue ?? "-";
+    };
+
+    const times = entradas.map(e => {
+      const stats = e.stats || [];
+      return {
+        nome: e.team?.displayName || "Time",
+        vitorias: Number(obterStat(stats, ["wins"])),
+        derrotas: Number(obterStat(stats, ["losses"])),
+        aproveitamento: obterStat(stats, ["winPercent", "winPercent"]),
+        jogosAtras: obterStat(stats, ["gamesBehind"]),
+        original: e
+      };
+    });
+
+    times.sort((a, b) => {
+      const aproveitamentoA = Number(a.aproveitamento);
+      const aproveitamentoB = Number(b.aproveitamento);
+
+      if (Number.isFinite(aproveitamentoA) &&
+          Number.isFinite(aproveitamentoB) &&
+          aproveitamentoA !== aproveitamentoB) {
+        return aproveitamentoB - aproveitamentoA;
+      }
+
+      return a.derrotas - b.derrotas;
+    });
+
+    tabela.innerHTML = times.map((time, indice) => {
+      const nomeSeguro = time.nome.replace(/[&<>"']/g, letra => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[letra]);
+
+      const aproveitamento = Number(time.aproveitamento);
+      const percentual = Number.isFinite(aproveitamento)
+        ? aproveitamento.toFixed(3).replace(/^0/, "")
+        : "-";
+
+      return `<tr class="${/Philadelphia 76ers/i.test(time.nome) ? "me" : ""}">
+        <td>${indice + 1}</td>
+        <td>${nomeSeguro}</td>
+        <td>${time.vitorias}</td>
+        <td>${time.derrotas}</td>
+        <td>${percentual}</td>
+      </tr>`;
+    }).join("");
 
   } catch (erro) {
     console.error("Classificação NBA:", erro);
   }
 }
-</script>
 
-</body>
-</html>
+atualizarClassificacaoNBA();
