@@ -260,59 +260,144 @@ footer p{margin:0 0 6px;max-width:70ch}
       tabela.innerHTML = '<tr><td colspan="5" class="status">Classificação indisponível no momento.</td></tr>';
     }
   }
-    async function carregarNoticiasSixers() {
+    
+  async function carregarNoticiasSixers() {
     const area = el("noticias-automaticas");
+
+    const nomes = [
+      "Philadelphia 76ers", "76ers", "Sixers", "NBA",
+      "Joel Embiid", "Tyrese Maxey", "Paul George",
+      "VJ Edgecombe", "Nick Nurse", "Kelly Oubre Jr.",
+      "Andre Drummond", "Jared McCain", "Quentin Grimes"
+    ];
+
+    async function traduzir(texto) {
+      if (!texto) return "";
+
+      const protegidos = [];
+      let textoSeguro = texto;
+
+      nomes.forEach((nome, i) => {
+        const regex = new RegExp(
+          nome.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+          "gi"
+        );
+
+        textoSeguro = textoSeguro.replace(regex, encontrado => {
+          const token = `ZXQNAME${i}QXZ`;
+          protegidos.push({ token, nome: encontrado });
+          return token;
+        });
+      });
+
+      try {
+        const url =
+          "https://api.mymemory.translated.net/get?q=" +
+          encodeURIComponent(textoSeguro) +
+          "&langpair=en|pt-br";
+
+        const resposta = await fetch(url);
+
+        if (!resposta.ok) return texto;
+
+        const dados = await resposta.json();
+        let traduzido = dados.responseData?.translatedText;
+
+        if (!traduzido || dados.responseStatus !== 200) {
+          return texto;
+        }
+
+        protegidos.forEach(({ token, nome }) => {
+          traduzido = traduzido.replaceAll(token, nome);
+        });
+
+        return traduzido;
+      } catch {
+        return texto;
+      }
+    }
 
     try {
       const resposta = await fetch(`${ESPN}/news?limit=50`);
-      if (!resposta.ok) throw new Error("Falha ao consultar notícias");
+      if (!resposta.ok) throw new Error("Falha nas notícias");
 
       const dados = await resposta.json();
-      const termos = ["76ers","sixers","philadelphia","embiid","maxey","edgecombe"];
+      const termos = [
+        "76ers", "sixers", "philadelphia", "embiid",
+        "maxey", "edgecombe"
+      ];
 
-      const noticias = (dados.articles || []).filter(n => {
-        const s = `${n.headline || ""} ${n.description || ""}`.toLowerCase();
-        return termos.some(t => s.includes(t));
-      }).slice(0,6);
+      const noticias = (dados.articles || [])
+        .filter(n => {
+          const texto =
+            `${n.headline || ""} ${n.description || ""}`
+              .toLowerCase();
+
+          return termos.some(t => texto.includes(t));
+        })
+        .slice(0, 6);
 
       if (!noticias.length) {
-        area.innerHTML = '<p class="status">Nenhuma notícia relacionada aos Sixers disponível agora.</p>';
+        area.innerHTML =
+          '<p class="status">Nenhuma notícia dos Sixers disponível agora.</p>';
         return;
       }
 
       area.replaceChildren();
 
-      noticias.forEach(n => {
-        const artigo = document.createElement("article");
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = "Notícia recente · ESPN";
+      const artigos = await Promise.all(
+        noticias.map(async n => {
+          const tituloOriginal = n.headline || "Notícia dos 76ers";
+          const resumoOriginal = n.description || "";
 
-        const h = document.createElement("h3");
-        h.textContent = n.headline || "Notícia dos 76ers";
+          const textoTraduzido = await traduzir(
+            `${tituloOriginal}\n${resumoOriginal}`
+          );
 
-        const p = document.createElement("p");
-        p.textContent = n.description || "";
+          const partes = textoTraduzido.split("\n");
+          const titulo = partes[0] || tituloOriginal;
+          const resumo = partes.slice(1).join("\n").trim()
+            || resumoOriginal;
 
-        artigo.append(meta,h,p);
+          const artigo = document.createElement("article");
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.textContent = "Notícia recente · ESPN";
 
-        const url = n.links?.web?.href;
+          const h = document.createElement("h3");
+          h.textContent = titulo;
 
-        if (url && /^https:\/\/(www\.)?espn\.com\//i.test(url)) {
-          const a = document.createElement("a");
-          a.href = url;
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = "Ler notícia completa";
-          artigo.append(a);
-        }
+          artigo.append(meta, h);
 
-        area.append(artigo);
-      });
+          if (resumo) {
+            const p = document.createElement("p");
+            p.textContent = resumo;
+            artigo.append(p);
+          }
+
+          const url = n.links?.web?.href;
+
+          if (url && /^https:\/\/(www\.)?espn\.com\//i.test(url)) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.textContent = "Ler notícia completa na ESPN";
+            artigo.append(a);
+          }
+
+          return artigo;
+        })
+      );
+
+      area.replaceChildren(...artigos);
     } catch (e) {
       console.error("Erro nas notícias:", e);
-      area.innerHTML = '<p class="status">Não foi possível carregar notícias agora. Tente novamente mais tarde.</p>';
+      area.innerHTML =
+        '<p class="status">Notícias temporariamente indisponíveis.</p>';
     }
+  }
+
   }
 
   async function carregarEstatisticasSixers() {
