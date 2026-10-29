@@ -370,5 +370,97 @@
   </div>
 </footer>
 
+<script>
+async function atualizarJogosSixers() {
+  const resultados = document.querySelector("#resultados .results");
+  const calendario = document.querySelector("#calendario .sched");
+
+  if (!resultados || !calendario) return;
+
+  const data = new Date();
+  const inicio = new Date(data);
+  inicio.setDate(inicio.getDate() - 14);
+
+  const fim = new Date(data);
+  fim.setDate(fim.getDate() + 30);
+
+  const formato = d =>
+    d.getFullYear() +
+    String(d.getMonth() + 1).padStart(2, "0") +
+    String(d.getDate()).padStart(2, "0");
+
+  const url =
+    "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=" +
+    formato(inicio) + "-" + formato(fim) + "&limit=100";
+
+  try {
+    const resposta = await fetch(url);
+    if (!resposta.ok) throw new Error("Falha ao consultar jogos");
+
+    const dados = await resposta.json();
+    const jogos = (dados.events || []).filter(jogo =>
+      (jogo.competitions?.[0]?.competitors || []).some(
+        time => time.team?.abbreviation === "PHI"
+      )
+    );
+
+    const passados = jogos
+      .filter(j => j.competitions[0].status?.type?.completed)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
+
+    const futuros = jogos
+      .filter(j => !j.competitions[0].status?.type?.completed &&
+        new Date(j.date) >= new Date())
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 6);
+
+    const dataBR = dataISO =>
+      new Date(dataISO).toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+    const montarJogo = (jogo, mostrarPlacar) => {
+      const competicao = jogo.competitions[0];
+      const times = competicao.competitors || [];
+      const sixers = times.find(t => t.team?.abbreviation === "PHI");
+      const adversario = times.find(t => t.team?.abbreviation !== "PHI");
+
+      if (!sixers || !adversario) return "";
+
+      const placar = mostrarPlacar
+        ? `${sixers.score ?? "-"} x ${adversario.score ?? "-"}`
+        : dataBR(jogo.date);
+
+      return `<div class="game">
+        <strong>Philadelphia 76ers</strong>
+        <span>${placar}</span>
+        <strong>${adversario.team.displayName}</strong>
+      </div>`;
+    };
+
+    if (passados.length) {
+      resultados.innerHTML = passados
+        .map(j => montarJogo(j, true)).join("");
+    }
+
+    if (futuros.length) {
+      calendario.innerHTML = futuros
+        .map(j => montarJogo(j, false)).join("");
+    }
+  } catch (erro) {
+    console.error("Não foi possível atualizar os jogos:", erro);
+  }
+}
+
+atualizarJogosSixers();
+</script>
+</body>
+</html>
+
 </body>
 </html>
