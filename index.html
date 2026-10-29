@@ -462,5 +462,41 @@ atualizarJogosSixers();
 </body>
 </html>
 
+<script>
+async function atualizarClassificacaoNBA() {
+  const tabela = document.querySelector("#tabela tbody");
+  if (!tabela) return;
+
+  try {
+    const resposta = await fetch(
+      "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
+    );
+
+    if (!resposta.ok) throw new Error("Falha ao carregar classificação");
+
+    const dados = await resposta.json();
+    const conferencias = dados.children || [];
+
+    const leste = conferencias.find(c =>
+      /eastern|east|leste/i.test(c.name || "")
+    );
+
+    if (!leste) throw new Error("Conferência Leste não encontrada");
+
+    const entradas = leste.standings?.entries || [];
+    const linhas = entradas
+      .map(e => {
+        const nome = e.team?.displayName || "";
+        const stats = e.stats || [];
+
+        const valor = ...;
+      });
+
+  } catch (erro) {
+    console.error("Classificação NBA:", erro);
+  }
+}
+</script>
+
 </body>
 </html>
