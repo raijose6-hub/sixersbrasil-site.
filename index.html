@@ -466,7 +466,9 @@ atualizarJogosSixers();
 async function atualizarClassificacaoNBA() {
   const tabela = document.querySelector("#tabela tbody");
   if (!tabela) return;
-
+async function atualizarClassificacaoNBA() {
+  const tabela = document.querySelector("#tabela tbody");
+  if (!tabela) return;
   try {
     const resposta = await fetch(
       "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
